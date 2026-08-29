@@ -1,0 +1,35 @@
+# HemoConnect backend configuration.
+# Every secret / environment-specific value comes from an environment
+# variable, with a sane LOCAL DEVELOPMENT default after the colon.
+# See ../../../../.env.example for the full list of variables.
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: hemoconnect-backend
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/hemoconnect?createDatabaseIfNotExist=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # update = Hibernate will create/alter tables to match our @Entity
+      # classes automatically. Good for learning; a real production project
+      # would use versioned Flyway/Liquibase migrations instead.
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+# Custom application properties (read via @Value in JwtService, Module 2)
+hemoconnect:
+  jwt:
+    secret: ${JWT_SECRET:}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours
