@@ -18,10 +18,11 @@ import java.util.List;
  * No business logic lives here (Section 3 of the brief: "Do not put
  * business logic directly inside controllers").
  *
- * SECURITY NOTE: right now (Module 1) these endpoints are wide open -
- * anyone can call GET /api/users/1 without logging in. That's expected at
- * this stage; Module 2 adds JWT authentication and Module 7 adds the
- * "only admins can list all users" rule. We're building bottom-up.
+ * SECURITY NOTE: since Module 2, SecurityConfig requires every request
+ * under /api/** (other than /api/auth/**) to carry a valid JWT - so every
+ * endpoint below now requires being logged in. It does NOT yet check
+ * roles (e.g. "only admins can list all users") - that fine-grained rule
+ * arrives in Module 7. We're building bottom-up, one rule at a time.
  */
 @RestController
 @RequestMapping("/api/users")

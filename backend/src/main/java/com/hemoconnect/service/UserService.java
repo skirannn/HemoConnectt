@@ -56,6 +56,27 @@ public class UserService {
         return UserResponseDto.fromEntity(user);
     }
 
+    /**
+     * Returns the raw User entity (not a DTO) by email. Used internally by
+     * AuthService, which needs the real entity - e.g. to read the password
+     * hash during login, or to build the {token, user} response after a
+     * successful login/signup.
+     */
+    public User getUserEntityByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
+
+    /**
+     * Overwrites a user's password with a freshly hashed value. Used by
+     * AuthService's OTP-based "forgot password" flow.
+     */
+    public void updatePassword(String email, String newRawPassword) {
+        User user = getUserEntityByEmail(email);
+        user.setPassword(passwordEncoder.encode(newRawPassword));
+        userRepository.save(user);
+    }
+
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()

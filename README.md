@@ -10,10 +10,11 @@ learn Spring Boot properly while preserving the real business rules of the
 original app. See `docs/analysis/EXISTING_PROJECT_ANALYSIS.md` for the full
 breakdown of what was in the original project and how it maps here.
 
-> **Status:** Module 1 (User Management) is implemented and working.
-> Modules 2–10 are designed (see the analysis doc) but not yet built —
-> this README will be updated honestly as each one ships. Nothing below
-> is claimed as "done" unless it's actually in the code.
+> **Status:** Modules 1 (User Management) and 2 (Authentication + JWT +
+> Spring Security) are implemented and working. Modules 3–10 are designed
+> (see the analysis doc) but not yet built — this README will be updated
+> honestly as each one ships. Nothing below is claimed as "done" unless
+> it's actually in the code.
 
 ## Technology stack
 
@@ -48,7 +49,7 @@ com.hemoconnect
 | # | Module | Status |
 |---|---|---|
 | 1 | User Management | ✅ Implemented |
-| 2 | Authentication + JWT + Spring Security | ⏳ Planned |
+| 2 | Authentication + JWT + Spring Security | ✅ Implemented |
 | 3 | Donor | ⏳ Planned |
 | 4 | Blood Request | ⏳ Planned |
 | 5 | Donor Matching | ⏳ Planned |
@@ -70,21 +71,31 @@ See `database/schema.sql` for the schema built so far, and Section 5 of
 ## API overview (so far)
 
 ```
-GET    /api/users/{id}          - get one user's public profile
-GET    /api/users               - list all users
-PUT    /api/users/{id}/profile  - update profile fields
-DELETE /api/users/{id}          - delete a user
+POST   /api/auth/signup           - register, returns { token, user }
+POST   /api/auth/login            - log in, returns { token, user }
+GET    /api/auth/verify           - returns the current user (requires a token)
+POST   /api/auth/forgot-password  - confirms an account exists
+POST   /api/auth/send-otp         - generates a 6-digit OTP (logged server-side)
+POST   /api/auth/reset-password   - verifies OTP + sets a new password
+
+GET    /api/users/{id}            - get one user's public profile   [requires login]
+GET    /api/users                 - list all users                  [requires login]
+PUT    /api/users/{id}/profile    - update profile fields            [requires login]
+DELETE /api/users/{id}            - delete a user                    [requires login]
 ```
 
-More endpoints (`/api/auth/**`, `/api/donors/**`, `/api/blood-requests/**`,
+More endpoints (`/api/donors/**`, `/api/blood-requests/**`,
 `/api/notifications/**`, `/api/admin/**`, `/api/contact/**`, `/api/ai/**`)
 will be documented here as their modules are implemented.
 
 ## Authentication
 
-Not implemented yet — arriving in Module 2. Currently every endpoint is
-open (see `backend/.../config/SecurityConfig.java` for why, and what
-replaces it).
+Implemented as of Module 2: JWT-based, stateless. Every endpoint except
+`/api/auth/**` and `/api/health` now requires a valid
+`Authorization: Bearer <token>` header — see
+`backend/.../config/SecurityConfig.java`. Role-specific rules (donor-only,
+admin-only) are layered on top in later modules. See
+`docs/modules/auth.md` for the full explanation.
 
 ## Setup instructions
 

@@ -29,6 +29,20 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at              DATETIME     NOT NULL
 );
 
+-- ============================================================
+-- MODULE 2: password_reset_otps
+-- Replaces the original project's in-memory OTP object with a real,
+-- persisted table (see docs/modules/auth.md for why).
+-- ============================================================
+CREATE TABLE IF NOT EXISTS password_reset_otps (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email       VARCHAR(255) NOT NULL,
+    otp_code    VARCHAR(10)  NOT NULL,
+    expires_at  DATETIME     NOT NULL,
+    used        BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at  DATETIME     NOT NULL
+);
+
 -- ------------------------------------------------------------
 -- Tables below are PLANNED (per docs/analysis/EXISTING_PROJECT_ANALYSIS.md)
 -- and will be added to this file as each module is implemented.
