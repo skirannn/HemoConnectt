@@ -87,7 +87,7 @@ public class UserService {
     }
 
     public List<UserResponseDto> getAllUsers() {
-        return userRepository.findAll()
+        return userRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
                 .map(UserResponseDto::fromEntity)
                 .toList();

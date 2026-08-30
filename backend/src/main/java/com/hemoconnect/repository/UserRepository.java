@@ -1,8 +1,10 @@
 package com.hemoconnect.repository;
 
+import com.hemoconnect.entity.Role;
 import com.hemoconnect.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,4 +25,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Generates: SELECT COUNT(*) > 0 FROM users WHERE email = ?
     boolean existsByEmail(String email);
+
+    // Generates: SELECT COUNT(*) FROM users WHERE role = ? (Module 7: admin stats)
+    long countByRole(Role role);
+
+    // Generates: SELECT * FROM users ORDER BY created_at DESC (Module 7: admin overview)
+    List<User> findAllByOrderByCreatedAtDesc();
 }

@@ -114,6 +114,70 @@ public class BloodRequestService {
                 .toList();
     }
 
+    /** Every request in the system, regardless of status (Module 7: admin overview). */
+    public List<BloodRequestResponseDto> listAllRequests() {
+        return bloodRequestRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::markExpiredIfNeeded)
+                .map(BloodRequestResponseDto::fromEntity)
+                .toList();
+    }
+
+    /** Every request currently flagged for admin review. */
+    public List<BloodRequestResponseDto> listFlaggedRequests() {
+        return bloodRequestRepository.findByFlaggedTrueOrderByCreatedAtDesc()
+                .stream()
+                .map(BloodRequestResponseDto::fromEntity)
+                .toList();
+    }
+
+    /** An admin flags a request for review (e.g. suspicious details). */
+    public BloodRequestResponseDto flagRequest(Long requestId, String reason) {
+        BloodRequest request = findRequestOrThrow(requestId);
+        request.setFlagged(true);
+        request.setFlagReason(reason);
+        BloodRequest saved = bloodRequestRepository.save(request);
+        return BloodRequestResponseDto.fromEntity(saved);
+    }
+
+    /** An admin reviews a flagged request and clears it - the request continues normally. */
+    public BloodRequestResponseDto approveFlaggedRequest(Long requestId) {
+        BloodRequest request = findRequestOrThrow(requestId);
+        request.setFlagged(false);
+        request.setFlagReason(null);
+        BloodRequest saved = bloodRequestRepository.save(request);
+        return BloodRequestResponseDto.fromEntity(saved);
+    }
+
+    /**
+     * An admin reviews a flagged request and rejects it outright: the
+     * request is cancelled and the requester is told why. This reuses the
+     * same CANCELLED status Module 4 already defined - a rejection IS a
+     * cancellation, just initiated by an admin instead of the requester.
+     */
+    public BloodRequestResponseDto rejectFlaggedRequest(Long requestId, String reason) {
+        BloodRequest request = findRequestOrThrow(requestId);
+        if (!request.isFlagged()) {
+            throw new IllegalArgumentException("Only a flagged request can be rejected");
+        }
+        if (request.getStatus() == RequestStatus.FULFILLED) {
+            throw new IllegalArgumentException("A fulfilled request can't be rejected");
+        }
+
+        request.setStatus(RequestStatus.CANCELLED);
+        request.setFlagged(false);
+        request.setFlagReason(reason);
+        BloodRequest saved = bloodRequestRepository.save(request);
+
+        notificationService.notify(
+                request.getRequester(),
+                NotificationType.STATUS_CHANGE,
+                "Your blood request was rejected",
+                "An admin rejected your request: " + reason);
+
+        return BloodRequestResponseDto.fromEntity(saved);
+    }
+
     /**
      * A donor accepts, declines, or says "maybe" to a request.
      * The original project's addResponse() business rule is preserved

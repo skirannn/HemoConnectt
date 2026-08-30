@@ -28,6 +28,8 @@ public class BloodRequestResponseDto {
     private LocalDateTime expiresAt;
     private List<DonorResponseDto> responses;
     private LocalDateTime createdAt;
+    private boolean flagged;
+    private String flagReason;
 
     public static BloodRequestResponseDto fromEntity(BloodRequest request) {
         BloodRequestResponseDto dto = new BloodRequestResponseDto();
@@ -51,6 +53,8 @@ public class BloodRequestResponseDto {
                 .map(DonorResponseDto::fromEntity)
                 .toList();
         dto.createdAt = request.getCreatedAt();
+        dto.flagged = request.isFlagged();
+        dto.flagReason = request.getFlagReason();
         return dto;
     }
 
@@ -182,5 +186,21 @@ public class BloodRequestResponseDto {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isFlagged() {
+        return flagged;
+    }
+
+    public void setFlagged(boolean flagged) {
+        this.flagged = flagged;
+    }
+
+    public String getFlagReason() {
+        return flagReason;
+    }
+
+    public void setFlagReason(String flagReason) {
+        this.flagReason = flagReason;
     }
 }

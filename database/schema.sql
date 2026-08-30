@@ -83,6 +83,8 @@ CREATE TABLE IF NOT EXISTS blood_requests (
                         -- PENDING | MATCHED | CONFIRMED | FULFILLED | CANCELLED | EXPIRED
     confirmed_donor_id  BIGINT,
     expires_at          DATETIME NOT NULL,      -- created_at + 30 days
+    is_flagged          BOOLEAN NOT NULL DEFAULT FALSE,  -- Module 7: admin moderation
+    flag_reason         VARCHAR(500),
     created_at          DATETIME NOT NULL,
     updated_at          DATETIME NOT NULL,
     CONSTRAINT fk_blood_request_requester FOREIGN KEY (requester_id) REFERENCES users(id),
@@ -122,5 +124,9 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 -- (MODULE 5: Donor Matching added no new table - it's a query layer on
 --  top of donor_profiles + blood_requests. See docs/modules/donor-matching.md)
+
+-- (MODULE 7: Admin added no new table - it's a coordinating/reporting
+--  layer plus is_flagged/flag_reason columns on blood_requests above.
+--  See docs/modules/admin.md)
 
 -- MODULE 8: contact_messages (standalone)

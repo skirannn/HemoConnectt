@@ -54,7 +54,7 @@ com.hemoconnect
 | 4 | Blood Request | ✅ Implemented |
 | 5 | Donor Matching | ✅ Implemented |
 | 6 | Notifications | ✅ Implemented |
-| 7 | Admin | ⏳ Planned |
+| 7 | Admin | ✅ Implemented |
 | 8 | Contact | ⏳ Planned |
 | 9 | React ↔ Spring Boot integration | ⏳ Planned |
 | 10 | Generative AI assistant | ⏳ Planned |
@@ -101,7 +101,20 @@ GET    /api/notifications                - my notifications              [requir
 GET    /api/notifications/unread-count   - unread count for a badge      [requires login]
 PATCH  /api/notifications/{id}/read      - mark one notification as read [requires login, must own it]
 PATCH  /api/notifications/read-all       - mark every notification read  [requires login]
+
+GET    /api/admin/stats                          - dashboard overview counts       [ADMIN]
+GET    /api/admin/users                           - every user                      [ADMIN]
+DELETE /api/admin/users/{id}                      - delete a user                   [ADMIN]
+GET    /api/admin/donors                          - every donor profile             [ADMIN]
+GET    /api/admin/blood-requests                  - every request, any status       [ADMIN]
+GET    /api/admin/blood-requests/flagged          - requests awaiting review        [ADMIN]
+POST   /api/admin/blood-requests/{id}/flag        - flag a request                  [ADMIN]
+POST   /api/admin/blood-requests/{id}/approve     - clear a flag                    [ADMIN]
+POST   /api/admin/blood-requests/{id}/reject      - cancel a flagged request         [ADMIN]
 ```
+
+> Note: "view contact messages" (part of a typical admin dashboard) isn't
+> here yet - it depends on Module 8 (Contact), which hasn't been built.
 
 More endpoints (`/api/donors/**`, `/api/blood-requests/**`,
 `/api/notifications/**`, `/api/admin/**`, `/api/contact/**`, `/api/ai/**`)

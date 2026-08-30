@@ -11,6 +11,7 @@ import com.hemoconnect.repository.DonorProfileRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * All donor-specific business logic, most importantly the 56-day
@@ -61,6 +62,14 @@ public class DonorProfileService {
     public DonorProfileResponseDto getProfileByUserId(Long userId) {
         DonorProfile profile = findProfileOrThrow(userId);
         return DonorProfileResponseDto.fromEntity(profile);
+    }
+
+    /** Every donor profile in the system (Module 7: admin overview). */
+    public List<DonorProfileResponseDto> getAllProfiles() {
+        return donorProfileRepository.findAll()
+                .stream()
+                .map(DonorProfileResponseDto::fromEntity)
+                .toList();
     }
 
     /**

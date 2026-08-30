@@ -64,6 +64,17 @@ public class BloodRequest {
     private LocalDateTime expiresAt;
 
     /**
+     * Admin moderation (Module 7). A request can be flagged for review -
+     * e.g. suspicious details - and an admin either clears the flag
+     * (approve) or cancels the request outright (reject).
+     */
+    @Column(name = "is_flagged", nullable = false)
+    private boolean flagged = false;
+
+    @Column(name = "flag_reason", length = 500)
+    private String flagReason;
+
+    /**
      * Every response a donor has made to this request (accept/decline/maybe).
      * @OneToMany(mappedBy = "bloodRequest") - the DonorResponse entity owns
      * the foreign key; cascade = ALL means saving/deleting a BloodRequest
@@ -192,6 +203,22 @@ public class BloodRequest {
 
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public boolean isFlagged() {
+        return flagged;
+    }
+
+    public void setFlagged(boolean flagged) {
+        this.flagged = flagged;
+    }
+
+    public String getFlagReason() {
+        return flagReason;
+    }
+
+    public void setFlagReason(String flagReason) {
+        this.flagReason = flagReason;
     }
 
     public List<DonorResponse> getResponses() {
