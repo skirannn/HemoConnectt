@@ -27,16 +27,22 @@ public class BloodRequestService {
     private final DonorResponseRepository donorResponseRepository;
     private final UserService userService;
     private final DonorProfileService donorProfileService;
+    private final DonorMatchingService donorMatchingService;
+    private final NotificationService notificationService;
 
     public BloodRequestService(
             BloodRequestRepository bloodRequestRepository,
             DonorResponseRepository donorResponseRepository,
             UserService userService,
-            DonorProfileService donorProfileService) {
+            DonorProfileService donorProfileService,
+            DonorMatchingService donorMatchingService,
+            NotificationService notificationService) {
         this.bloodRequestRepository = bloodRequestRepository;
         this.donorResponseRepository = donorResponseRepository;
         this.userService = userService;
         this.donorProfileService = donorProfileService;
+        this.donorMatchingService = donorMatchingService;
+        this.notificationService = notificationService;
     }
 
     /** Only a RECIPIENT can create a blood request. */
@@ -58,6 +64,26 @@ public class BloodRequestService {
         // status defaults to PENDING and expiresAt is set automatically (see @PrePersist)
 
         BloodRequest saved = bloodRequestRepository.save(request);
+
+        // Module 6: notify every currently-eligible, compatible donor that
+        // a new request matching them was just created. We reuse Module 5's
+        // matching query rather than duplicating "who's compatible" logic.
+        try {
+            donorMatchingService.findMatches(saved.getId(), requester).forEach(match -> {
+                User donorUser = userService.getUserEntityById(match.getDonorId());
+                notificationService.notify(
+                        donorUser,
+                        NotificationType.NEW_MATCHING_REQUEST,
+                        "New blood request matches your profile",
+                        "A " + saved.getBloodGroup().getLabel() + " blood request near "
+                                + saved.getLocation() + " is looking for donors.");
+            });
+        } catch (Exception ex) {
+            // Matching/notification failures should never stop the request
+            // itself from being created successfully.
+            log.warn("Could not notify matching donors for request {}: {}", saved.getId(), ex.getMessage());
+        }
+
         return BloodRequestResponseDto.fromEntity(saved);
     }
 
@@ -118,6 +144,13 @@ public class BloodRequestService {
         }
 
         BloodRequest saved = bloodRequestRepository.save(request);
+
+        notificationService.notify(
+                request.getRequester(),
+                NotificationType.DONOR_RESPONSE,
+                "A donor responded to your blood request",
+                donor.getName() + " responded \"" + dto.getResponseType() + "\" to your request.");
+
         return BloodRequestResponseDto.fromEntity(saved);
     }
 
@@ -142,6 +175,14 @@ public class BloodRequestService {
         request.setStatus(RequestStatus.CONFIRMED);
 
         BloodRequest saved = bloodRequestRepository.save(request);
+
+        notificationService.notify(
+                donor,
+                NotificationType.STATUS_CHANGE,
+                "You've been confirmed as a donor",
+                request.getRequester().getName() + " confirmed you for their "
+                        + request.getBloodGroup().getLabel() + " blood request.");
+
         return BloodRequestResponseDto.fromEntity(saved);
     }
 
@@ -162,6 +203,12 @@ public class BloodRequestService {
 
         request.setStatus(RequestStatus.FULFILLED);
         BloodRequest saved = bloodRequestRepository.save(request);
+
+        notificationService.notify(
+                request.getConfirmedDonor(),
+                NotificationType.STATUS_CHANGE,
+                "Thank you for your donation",
+                "Your donation for " + request.getRequester().getName() + "'s request has been recorded.");
 
         try {
             RecordDonationRequestDto donationDto = new RecordDonationRequestDto();
@@ -189,10 +236,39 @@ public class BloodRequestService {
 
         request.setStatus(RequestStatus.CANCELLED);
         BloodRequest saved = bloodRequestRepository.save(request);
+
+        notifyDonorsOfCancellation(request);
+
         return BloodRequestResponseDto.fromEntity(saved);
     }
 
     // ----- Private helpers -----
+
+    /**
+     * When a request is cancelled, whoever was actually involved should
+     * know. If a donor was already confirmed, only they need telling.
+     * Otherwise, every donor who'd accepted (but wasn't yet confirmed) is
+     * notified, so nobody shows up expecting to donate for nothing.
+     */
+    private void notifyDonorsOfCancellation(BloodRequest request) {
+        if (request.getConfirmedDonor() != null) {
+            notificationService.notify(
+                    request.getConfirmedDonor(),
+                    NotificationType.STATUS_CHANGE,
+                    "A blood request you were confirmed for was cancelled",
+                    request.getRequester().getName() + " cancelled their blood request.");
+            return;
+        }
+
+        request.getResponses().stream()
+                .filter(r -> r.getResponseType() == ResponseType.ACCEPT)
+                .map(DonorResponse::getDonor)
+                .forEach(donor -> notificationService.notify(
+                        donor,
+                        NotificationType.STATUS_CHANGE,
+                        "A blood request you accepted was cancelled",
+                        request.getRequester().getName() + " cancelled their blood request."));
+    }
 
     private BloodRequest findRequestOrThrow(Long id) {
         return bloodRequestRepository.findById(id)

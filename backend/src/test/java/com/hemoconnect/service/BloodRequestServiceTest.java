@@ -32,6 +32,10 @@ class BloodRequestServiceTest {
     private UserService userService;
     @Mock
     private DonorProfileService donorProfileService;
+    @Mock
+    private DonorMatchingService donorMatchingService;
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private BloodRequestService bloodRequestService;

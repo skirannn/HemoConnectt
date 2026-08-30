@@ -53,7 +53,7 @@ com.hemoconnect
 | 3 | Donor | ✅ Implemented |
 | 4 | Blood Request | ✅ Implemented |
 | 5 | Donor Matching | ✅ Implemented |
-| 6 | Notifications | ⏳ Planned |
+| 6 | Notifications | ✅ Implemented |
 | 7 | Admin | ⏳ Planned |
 | 8 | Contact | ⏳ Planned |
 | 9 | React ↔ Spring Boot integration | ⏳ Planned |
@@ -96,6 +96,11 @@ POST   /api/blood-requests/{id}/confirm  - confirm one donor        [requester o
 POST   /api/blood-requests/{id}/fulfill  - mark donation completed  [requester or ADMIN]
 POST   /api/blood-requests/{id}/cancel   - cancel the request       [requester or ADMIN]
 GET    /api/blood-requests/{id}/matches  - candidate donors for this request  [requester or ADMIN]
+
+GET    /api/notifications                - my notifications              [requires login]
+GET    /api/notifications/unread-count   - unread count for a badge      [requires login]
+PATCH  /api/notifications/{id}/read      - mark one notification as read [requires login, must own it]
+PATCH  /api/notifications/read-all       - mark every notification read  [requires login]
 ```
 
 More endpoints (`/api/donors/**`, `/api/blood-requests/**`,

@@ -100,6 +100,20 @@ CREATE TABLE IF NOT EXISTS donor_responses (
     CONSTRAINT fk_donor_response_donor FOREIGN KEY (donor_id) REFERENCES users(id)
 );
 
+-- ============================================================
+-- MODULE 6: notifications
+-- ============================================================
+CREATE TABLE IF NOT EXISTS notifications (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id     BIGINT NOT NULL,
+    type        VARCHAR(25) NOT NULL,   -- NEW_MATCHING_REQUEST | DONOR_RESPONSE | STATUS_CHANGE
+    title       VARCHAR(255) NOT NULL,
+    message     VARCHAR(1000) NOT NULL,
+    is_read     BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at  DATETIME NOT NULL,
+    CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- ------------------------------------------------------------
 -- Tables below are PLANNED (per docs/analysis/EXISTING_PROJECT_ANALYSIS.md)
 -- and will be added to this file as each module is implemented.
@@ -109,5 +123,4 @@ CREATE TABLE IF NOT EXISTS donor_responses (
 -- (MODULE 5: Donor Matching added no new table - it's a query layer on
 --  top of donor_profiles + blood_requests. See docs/modules/donor-matching.md)
 
--- MODULE 6: notifications (many:1 with users)
 -- MODULE 8: contact_messages (standalone)
