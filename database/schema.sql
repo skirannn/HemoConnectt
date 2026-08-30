@@ -106,5 +106,8 @@ CREATE TABLE IF NOT EXISTS donor_responses (
 -- Listed here so the full target schema is visible up front.
 -- ------------------------------------------------------------
 
+-- (MODULE 5: Donor Matching added no new table - it's a query layer on
+--  top of donor_profiles + blood_requests. See docs/modules/donor-matching.md)
+
 -- MODULE 6: notifications (many:1 with users)
 -- MODULE 8: contact_messages (standalone)

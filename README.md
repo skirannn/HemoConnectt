@@ -52,7 +52,7 @@ com.hemoconnect
 | 2 | Authentication + JWT + Spring Security | ✅ Implemented |
 | 3 | Donor | ✅ Implemented |
 | 4 | Blood Request | ✅ Implemented |
-| 5 | Donor Matching | ⏳ Planned |
+| 5 | Donor Matching | ✅ Implemented |
 | 6 | Notifications | ⏳ Planned |
 | 7 | Admin | ⏳ Planned |
 | 8 | Contact | ⏳ Planned |
@@ -95,6 +95,7 @@ POST   /api/blood-requests/{id}/respond  - accept/decline/maybe     [DONOR]
 POST   /api/blood-requests/{id}/confirm  - confirm one donor        [requester or ADMIN]
 POST   /api/blood-requests/{id}/fulfill  - mark donation completed  [requester or ADMIN]
 POST   /api/blood-requests/{id}/cancel   - cancel the request       [requester or ADMIN]
+GET    /api/blood-requests/{id}/matches  - candidate donors for this request  [requester or ADMIN]
 ```
 
 More endpoints (`/api/donors/**`, `/api/blood-requests/**`,

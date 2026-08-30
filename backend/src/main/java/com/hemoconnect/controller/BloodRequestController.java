@@ -3,6 +3,7 @@ package com.hemoconnect.controller;
 import com.hemoconnect.dto.*;
 import com.hemoconnect.security.UserPrincipal;
 import com.hemoconnect.service.BloodRequestService;
+import com.hemoconnect.service.DonorMatchingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +30,11 @@ import java.util.List;
 public class BloodRequestController {
 
     private final BloodRequestService bloodRequestService;
+    private final DonorMatchingService donorMatchingService;
 
-    public BloodRequestController(BloodRequestService bloodRequestService) {
+    public BloodRequestController(BloodRequestService bloodRequestService, DonorMatchingService donorMatchingService) {
         this.bloodRequestService = bloodRequestService;
+        this.donorMatchingService = donorMatchingService;
     }
 
     /** POST /api/blood-requests - a recipient creates a new request. */
@@ -101,5 +104,17 @@ public class BloodRequestController {
             @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(
                 bloodRequestService.cancelRequest(id, principal.getUser().getId()));
+    }
+
+    /**
+     * GET /api/blood-requests/{id}/matches - candidate donors for this
+     * request (Module 5). Restricted to the requester or an admin, since
+     * the result includes donor contact info.
+     */
+    @GetMapping("/{id}/matches")
+    public ResponseEntity<List<MatchedDonorDto>> getMatches(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(donorMatchingService.findMatches(id, principal.getUser()));
     }
 }
