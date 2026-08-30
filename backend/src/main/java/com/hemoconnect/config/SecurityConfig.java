@@ -3,6 +3,7 @@ package com.hemoconnect.config;
 import com.hemoconnect.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -22,8 +23,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  *   1. STATELESS sessions - we never use HttpSession or cookies to track
  *      who's logged in. Every request must carry its own JWT.
  *   2. Public vs protected endpoints - /api/auth/** (signup, login,
- *      password reset) must be reachable WITHOUT already being logged in.
- *      Everything else requires a valid JWT.
+ *      password reset) and submitting a Contact Us message must be
+ *      reachable WITHOUT already being logged in. Everything else
+ *      requires a valid JWT.
  *   3. Our JwtAuthenticationFilter runs before Spring Security's own
  *      username/password filter, so by the time Spring Security decides
  *      "is this request authenticated?", our filter has already read the
@@ -53,6 +55,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/health").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/contact")
+                                .permitAll() // anyone can submit a Contact Us message, no login required
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

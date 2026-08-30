@@ -116,17 +116,26 @@ CREATE TABLE IF NOT EXISTS notifications (
     CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- ============================================================
+-- MODULE 8: contact_messages
+-- Not linked to `users` - the whole point of a Contact Us form is that
+-- someone doesn't need an account to submit one.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(255) NOT NULL,
+    email       VARCHAR(255) NOT NULL,
+    phone       VARCHAR(20),
+    subject     VARCHAR(200) NOT NULL,
+    message     VARCHAR(2000) NOT NULL,
+    category    VARCHAR(20) NOT NULL,  -- GENERAL | TECHNICAL_ISSUE | DONOR_SUPPORT | RECIPIENT_SUPPORT | FEEDBACK | OTHER
+    priority    VARCHAR(10) NOT NULL,  -- LOW | MEDIUM | HIGH
+    status      VARCHAR(15) NOT NULL DEFAULT 'NEW', -- NEW | IN_PROGRESS | RESOLVED
+    created_at  DATETIME NOT NULL
+);
+
 -- ------------------------------------------------------------
--- Tables below are PLANNED (per docs/analysis/EXISTING_PROJECT_ANALYSIS.md)
--- and will be added to this file as each module is implemented.
--- Listed here so the full target schema is visible up front.
+-- Every table listed in the original migration plan
+-- (docs/analysis/EXISTING_PROJECT_ANALYSIS.md) now exists above.
+-- Modules 9-10 (React integration, Generative AI) don't need new tables.
 -- ------------------------------------------------------------
-
--- (MODULE 5: Donor Matching added no new table - it's a query layer on
---  top of donor_profiles + blood_requests. See docs/modules/donor-matching.md)
-
--- (MODULE 7: Admin added no new table - it's a coordinating/reporting
---  layer plus is_flagged/flag_reason columns on blood_requests above.
---  See docs/modules/admin.md)
-
--- MODULE 8: contact_messages (standalone)

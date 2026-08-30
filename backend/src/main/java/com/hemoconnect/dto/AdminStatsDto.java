@@ -10,6 +10,7 @@ public class AdminStatsDto {
     private long activeRequests;    // PENDING or MATCHED
     private long fulfilledRequests; // real count, never mock data
     private long flaggedRequests;
+    private long newContactMessages;
 
     public AdminStatsDto() {
     }
@@ -68,5 +69,13 @@ public class AdminStatsDto {
 
     public void setFlaggedRequests(long flaggedRequests) {
         this.flaggedRequests = flaggedRequests;
+    }
+
+    public long getNewContactMessages() {
+        return newContactMessages;
+    }
+
+    public void setNewContactMessages(long newContactMessages) {
+        this.newContactMessages = newContactMessages;
     }
 }

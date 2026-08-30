@@ -55,7 +55,7 @@ com.hemoconnect
 | 5 | Donor Matching | ✅ Implemented |
 | 6 | Notifications | ✅ Implemented |
 | 7 | Admin | ✅ Implemented |
-| 8 | Contact | ⏳ Planned |
+| 8 | Contact | ✅ Implemented |
 | 9 | React ↔ Spring Boot integration | ⏳ Planned |
 | 10 | Generative AI assistant | ⏳ Planned |
 
@@ -111,10 +111,12 @@ GET    /api/admin/blood-requests/flagged          - requests awaiting review    
 POST   /api/admin/blood-requests/{id}/flag        - flag a request                  [ADMIN]
 POST   /api/admin/blood-requests/{id}/approve     - clear a flag                    [ADMIN]
 POST   /api/admin/blood-requests/{id}/reject      - cancel a flagged request         [ADMIN]
-```
 
-> Note: "view contact messages" (part of a typical admin dashboard) isn't
-> here yet - it depends on Module 8 (Contact), which hasn't been built.
+POST   /api/contact                       - submit a message               [public, no login]
+GET    /api/contact?status=NEW            - list messages (filter optional) [ADMIN]
+GET    /api/contact/{id}                  - view one message                [ADMIN]
+PATCH  /api/contact/{id}/status           - update a message's status       [ADMIN]
+```
 
 More endpoints (`/api/donors/**`, `/api/blood-requests/**`,
 `/api/notifications/**`, `/api/admin/**`, `/api/contact/**`, `/api/ai/**`)

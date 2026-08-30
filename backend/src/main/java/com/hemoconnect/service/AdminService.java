@@ -4,9 +4,11 @@ import com.hemoconnect.dto.AdminStatsDto;
 import com.hemoconnect.dto.BloodRequestResponseDto;
 import com.hemoconnect.dto.DonorProfileResponseDto;
 import com.hemoconnect.dto.UserResponseDto;
+import com.hemoconnect.entity.ContactStatus;
 import com.hemoconnect.entity.RequestStatus;
 import com.hemoconnect.entity.Role;
 import com.hemoconnect.repository.BloodRequestRepository;
+import com.hemoconnect.repository.ContactMessageRepository;
 import com.hemoconnect.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final BloodRequestRepository bloodRequestRepository;
+    private final ContactMessageRepository contactMessageRepository;
     private final UserService userService;
     private final DonorProfileService donorProfileService;
     private final BloodRequestService bloodRequestService;
@@ -34,11 +37,13 @@ public class AdminService {
     public AdminService(
             UserRepository userRepository,
             BloodRequestRepository bloodRequestRepository,
+            ContactMessageRepository contactMessageRepository,
             UserService userService,
             DonorProfileService donorProfileService,
             BloodRequestService bloodRequestService) {
         this.userRepository = userRepository;
         this.bloodRequestRepository = bloodRequestRepository;
+        this.contactMessageRepository = contactMessageRepository;
         this.userService = userService;
         this.donorProfileService = donorProfileService;
         this.bloodRequestService = bloodRequestService;
@@ -59,6 +64,7 @@ public class AdminService {
                 bloodRequestRepository.countByStatusIn(List.of(RequestStatus.PENDING, RequestStatus.MATCHED)));
         stats.setFulfilledRequests(bloodRequestRepository.countByStatus(RequestStatus.FULFILLED));
         stats.setFlaggedRequests(bloodRequestRepository.countByFlaggedTrue());
+        stats.setNewContactMessages(contactMessageRepository.countByStatus(ContactStatus.NEW));
         return stats;
     }
 

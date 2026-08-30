@@ -18,10 +18,13 @@ import java.util.List;
  * BloodRequestController, where different endpoints need different rules,
  * so each one is annotated individually instead.)
  *
- * NOTE: "view contact messages" (part of the original admin dashboard) is
- * intentionally not here yet - it depends on Module 8 (Contact), which
- * doesn't exist yet. It'll be added to this controller once that module
- * is built, rather than faked now.
+ * NOTE: full contact-message management (viewing, updating status) lives
+ * in ContactController instead of being duplicated here - it's restricted
+ * to ADMIN with the same @PreAuthorize pattern, but a "message" is its
+ * own resource, so it gets its own controller like everything else in
+ * this app. This controller's /stats endpoint does include a real count
+ * of new (unread) contact messages, so an admin still sees them reflected
+ * in the dashboard overview without a duplicate set of endpoints.
  */
 @RestController
 @RequestMapping("/api/admin")
