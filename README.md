@@ -51,7 +51,7 @@ com.hemoconnect
 | 1 | User Management | ✅ Implemented |
 | 2 | Authentication + JWT + Spring Security | ✅ Implemented |
 | 3 | Donor | ✅ Implemented |
-| 4 | Blood Request | ⏳ Planned |
+| 4 | Blood Request | ✅ Implemented |
 | 5 | Donor Matching | ⏳ Planned |
 | 6 | Notifications | ⏳ Planned |
 | 7 | Admin | ⏳ Planned |
@@ -86,6 +86,15 @@ DELETE /api/users/{id}            - delete a user                    [requires l
 PUT    /api/donors/{userId}/profile      - create/update donor profile  [self or ADMIN]
 GET    /api/donors/{userId}/profile      - view donor profile           [self or ADMIN]
 POST   /api/donors/{userId}/donations    - record a completed donation  [self or ADMIN]
+
+POST   /api/blood-requests               - create a request        [RECIPIENT]
+GET    /api/blood-requests/{id}          - view one request         [any logged-in user]
+GET    /api/blood-requests/active        - list open requests       [any logged-in user]
+GET    /api/blood-requests/mine          - requester's own history  [RECIPIENT]
+POST   /api/blood-requests/{id}/respond  - accept/decline/maybe     [DONOR]
+POST   /api/blood-requests/{id}/confirm  - confirm one donor        [requester or ADMIN]
+POST   /api/blood-requests/{id}/fulfill  - mark donation completed  [requester or ADMIN]
+POST   /api/blood-requests/{id}/cancel   - cancel the request       [requester or ADMIN]
 ```
 
 More endpoints (`/api/donors/**`, `/api/blood-requests/**`,

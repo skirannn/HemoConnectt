@@ -66,13 +66,45 @@ CREATE TABLE IF NOT EXISTS donor_profiles (
     CONSTRAINT fk_donor_profile_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- ============================================================
+-- MODULE 4: blood_requests + donor_responses
+-- ============================================================
+CREATE TABLE IF NOT EXISTS blood_requests (
+    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    requester_id        BIGINT NOT NULL,
+    blood_group         VARCHAR(20) NOT NULL,
+    units_required      INT NOT NULL,
+    hospital            VARCHAR(255),
+    location            VARCHAR(255) NOT NULL,
+    urgency             VARCHAR(10) NOT NULL,   -- LOW | MEDIUM | HIGH | CRITICAL
+    required_date       DATE,
+    description         VARCHAR(1000),
+    status              VARCHAR(15) NOT NULL DEFAULT 'PENDING',
+                        -- PENDING | MATCHED | CONFIRMED | FULFILLED | CANCELLED | EXPIRED
+    confirmed_donor_id  BIGINT,
+    expires_at          DATETIME NOT NULL,      -- created_at + 30 days
+    created_at          DATETIME NOT NULL,
+    updated_at          DATETIME NOT NULL,
+    CONSTRAINT fk_blood_request_requester FOREIGN KEY (requester_id) REFERENCES users(id),
+    CONSTRAINT fk_blood_request_confirmed_donor FOREIGN KEY (confirmed_donor_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS donor_responses (
+    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    blood_request_id    BIGINT NOT NULL,
+    donor_id            BIGINT NOT NULL,
+    response_type       VARCHAR(10) NOT NULL,   -- ACCEPT | DECLINE | MAYBE
+    response_message    VARCHAR(500),
+    created_at          DATETIME NOT NULL,
+    CONSTRAINT fk_donor_response_request FOREIGN KEY (blood_request_id) REFERENCES blood_requests(id),
+    CONSTRAINT fk_donor_response_donor FOREIGN KEY (donor_id) REFERENCES users(id)
+);
+
 -- ------------------------------------------------------------
 -- Tables below are PLANNED (per docs/analysis/EXISTING_PROJECT_ANALYSIS.md)
 -- and will be added to this file as each module is implemented.
 -- Listed here so the full target schema is visible up front.
 -- ------------------------------------------------------------
 
--- MODULE 4: blood_requests (many:1 with users as requester)
--- MODULE 4: donor_responses (many:1 with blood_requests and users as donor)
 -- MODULE 6: notifications (many:1 with users)
 -- MODULE 8: contact_messages (standalone)
