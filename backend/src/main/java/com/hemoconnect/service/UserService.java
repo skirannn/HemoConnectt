@@ -68,6 +68,15 @@ public class UserService {
     }
 
     /**
+     * Returns the raw User entity by id. Used internally by other services
+     * (e.g. DonorProfileService) that need to attach a related entity
+     * (like a DonorProfile) to a real User object, not just a DTO.
+     */
+    public User getUserEntityById(Long id) {
+        return findUserOrThrow(id);
+    }
+
+    /**
      * Overwrites a user's password with a freshly hashed value. Used by
      * AuthService's OTP-based "forgot password" flow.
      */

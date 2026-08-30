@@ -43,13 +43,35 @@ CREATE TABLE IF NOT EXISTS password_reset_otps (
     created_at  DATETIME     NOT NULL
 );
 
+-- ============================================================
+-- MODULE 3: donor_profiles
+-- One row per DONOR user, holding donor-only medical/eligibility data.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS donor_profiles (
+    id                    BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id               BIGINT NOT NULL UNIQUE,
+    last_donation_date    DATE,
+    next_eligible_date    DATE,
+    is_eligible           BOOLEAN NOT NULL DEFAULT TRUE,
+    total_donations       INT NOT NULL DEFAULT 0,
+    total_units_donated   INT NOT NULL DEFAULT 0,
+    age                   INT,
+    weight                DOUBLE,
+    height                DOUBLE,
+    gender                VARCHAR(10),
+    max_distance_km       INT,
+    emergency_only        BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at            DATETIME NOT NULL,
+    updated_at            DATETIME NOT NULL,
+    CONSTRAINT fk_donor_profile_user FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- ------------------------------------------------------------
 -- Tables below are PLANNED (per docs/analysis/EXISTING_PROJECT_ANALYSIS.md)
 -- and will be added to this file as each module is implemented.
 -- Listed here so the full target schema is visible up front.
 -- ------------------------------------------------------------
 
--- MODULE 3: donor_profiles (1:1 with users, donor-only medical/eligibility data)
 -- MODULE 4: blood_requests (many:1 with users as requester)
 -- MODULE 4: donor_responses (many:1 with blood_requests and users as donor)
 -- MODULE 6: notifications (many:1 with users)

@@ -50,7 +50,7 @@ com.hemoconnect
 |---|---|---|
 | 1 | User Management | ✅ Implemented |
 | 2 | Authentication + JWT + Spring Security | ✅ Implemented |
-| 3 | Donor | ⏳ Planned |
+| 3 | Donor | ✅ Implemented |
 | 4 | Blood Request | ⏳ Planned |
 | 5 | Donor Matching | ⏳ Planned |
 | 6 | Notifications | ⏳ Planned |
@@ -82,6 +82,10 @@ GET    /api/users/{id}            - get one user's public profile   [requires lo
 GET    /api/users                 - list all users                  [requires login]
 PUT    /api/users/{id}/profile    - update profile fields            [requires login]
 DELETE /api/users/{id}            - delete a user                    [requires login]
+
+PUT    /api/donors/{userId}/profile      - create/update donor profile  [self or ADMIN]
+GET    /api/donors/{userId}/profile      - view donor profile           [self or ADMIN]
+POST   /api/donors/{userId}/donations    - record a completed donation  [self or ADMIN]
 ```
 
 More endpoints (`/api/donors/**`, `/api/blood-requests/**`,
