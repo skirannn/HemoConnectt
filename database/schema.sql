@@ -137,5 +137,7 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 -- ------------------------------------------------------------
 -- Every table listed in the original migration plan
 -- (docs/analysis/EXISTING_PROJECT_ANALYSIS.md) now exists above.
--- Modules 9-10 (React integration, Generative AI) don't need new tables.
+-- Module 10 (Generative AI) needs no new table - it's a stateless
+-- request/response call to an external API, nothing persisted.
+-- See docs/modules/ai-assistant.md
 -- ------------------------------------------------------------

@@ -78,6 +78,23 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 503 — a feature that depends on external configuration isn't set
+     * up yet (currently only the AI assistant, Module 10, if AI_API_KEY
+     * is missing). Different from every other error here: nothing the
+     * CALLER did was wrong, the server just isn't ready for this one
+     * optional feature.
+     */
+    @ExceptionHandler(AiNotConfiguredException.class)
+    public ResponseEntity<ErrorResponse> handleAiNotConfigured(AiNotConfiguredException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Service Unavailable",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
+    }
+
+    /**
      * 400 — a request that failed a business rule check we raise
      * ourselves with a plain IllegalArgumentException (e.g. an expired or
      * incorrect OTP in AuthService.resetPassword).

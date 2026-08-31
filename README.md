@@ -10,15 +10,15 @@ learn Spring Boot properly while preserving the real business rules of the
 original app. See `docs/analysis/EXISTING_PROJECT_ANALYSIS.md` for the full
 breakdown of what was in the original project and how it maps here.
 
-> **Status:** Modules 1–8 (User Management through Contact) are fully
-> implemented on the backend. Module 9 (React ↔ Spring Boot integration)
-> is partially done - the authentication flow (signup, login, session
-> restore, logout, forgot-password) is fully wired end to end against the
-> real backend; the remaining pages are documented but not yet migrated
-> (see `docs/modules/frontend-integration.md`). Module 10 (Generative AI)
-> is designed but not built. This README is updated honestly as each
-> piece ships - nothing below is claimed as "done" unless it's actually
-> in the code.
+> **Status:** Modules 1–8 (User Management through Contact) and Module 10
+> (Generative AI) are fully implemented on the backend. Module 9 (React ↔
+> Spring Boot integration) is partially done - the authentication flow
+> (signup, login, session restore, logout, forgot-password) is fully
+> wired end to end against the real backend; the remaining pages are
+> documented but not yet migrated (see
+> `docs/modules/frontend-integration.md`). This README is updated
+> honestly as each piece ships - nothing below is claimed as "done"
+> unless it's actually in the code.
 
 ## Technology stack
 
@@ -61,7 +61,7 @@ com.hemoconnect
 | 7 | Admin | ✅ Implemented |
 | 8 | Contact | ✅ Implemented |
 | 9 | React ↔ Spring Boot integration | 🟡 Partial (auth flow fully wired; other pages documented, not yet migrated) |
-| 10 | Generative AI assistant | ⏳ Planned |
+| 10 | Generative AI assistant | ✅ Implemented (backend) |
 
 Each module gets its own explanation doc under `docs/modules/`, written for
 learning (see `docs/modules/user.md` for Module 1).
@@ -120,6 +120,8 @@ POST   /api/contact                       - submit a message               [publ
 GET    /api/contact?status=NEW            - list messages (filter optional) [ADMIN]
 GET    /api/contact/{id}                  - view one message                [ADMIN]
 PATCH  /api/contact/{id}/status           - update a message's status       [ADMIN]
+
+POST   /api/ai/chat                       - ask the HemoConnect Assistant   [requires login]
 ```
 
 More endpoints (`/api/donors/**`, `/api/blood-requests/**`,
