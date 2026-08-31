@@ -10,11 +10,15 @@ learn Spring Boot properly while preserving the real business rules of the
 original app. See `docs/analysis/EXISTING_PROJECT_ANALYSIS.md` for the full
 breakdown of what was in the original project and how it maps here.
 
-> **Status:** Modules 1 (User Management) and 2 (Authentication + JWT +
-> Spring Security) are implemented and working. Modules 3–10 are designed
-> (see the analysis doc) but not yet built — this README will be updated
-> honestly as each one ships. Nothing below is claimed as "done" unless
-> it's actually in the code.
+> **Status:** Modules 1–8 (User Management through Contact) are fully
+> implemented on the backend. Module 9 (React ↔ Spring Boot integration)
+> is partially done - the authentication flow (signup, login, session
+> restore, logout, forgot-password) is fully wired end to end against the
+> real backend; the remaining pages are documented but not yet migrated
+> (see `docs/modules/frontend-integration.md`). Module 10 (Generative AI)
+> is designed but not built. This README is updated honestly as each
+> piece ships - nothing below is claimed as "done" unless it's actually
+> in the code.
 
 ## Technology stack
 
@@ -56,7 +60,7 @@ com.hemoconnect
 | 6 | Notifications | ✅ Implemented |
 | 7 | Admin | ✅ Implemented |
 | 8 | Contact | ✅ Implemented |
-| 9 | React ↔ Spring Boot integration | ⏳ Planned |
+| 9 | React ↔ Spring Boot integration | 🟡 Partial (auth flow fully wired; other pages documented, not yet migrated) |
 | 10 | Generative AI assistant | ⏳ Planned |
 
 Each module gets its own explanation doc under `docs/modules/`, written for
@@ -164,12 +168,22 @@ mvn test
 
 ### How to run the frontend
 
-Not yet available — the `frontend/` folder is created in Module 9, when
-the existing React UI is wired up to this backend.
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Starts on `http://localhost:5173`. The dev server proxies `/api/**`
+straight to the backend on `http://localhost:8080` (see
+`vite.config.js`), so start the backend first. Signup, login, session
+restore, logout, and forgot-password all work end to end against the
+real Spring Boot API. See `docs/modules/frontend-integration.md` for
+exactly what's wired up and how to migrate the remaining pages yourself.
 
 ## Screenshots
 
-_Added once the frontend module is connected._
+_Added once more of the frontend is migrated (Module 9)._
 
 ## Future enhancements
 

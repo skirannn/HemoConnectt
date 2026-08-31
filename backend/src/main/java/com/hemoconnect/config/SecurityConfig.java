@@ -49,6 +49,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception {
         http
+                .cors(cors -> {}) // uses the CorsConfigurationSource bean from CorsConfig (Module 9)
                 .csrf(csrf -> csrf.disable()) // not needed for a stateless, token-based REST API
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authProvider)
