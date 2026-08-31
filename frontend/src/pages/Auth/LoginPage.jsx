@@ -1,3 +1,4 @@
+
 import {
   Box,
   Button,
@@ -16,9 +17,15 @@ import {
   CardBody,
   Icon,
 } from '@chakra-ui/react';
+
 import { FiHeart } from 'react-icons/fi';
 import { useState } from 'react';
-import { Link as RouterLink, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import {
+  Link as RouterLink,
+  useNavigate,
+  Navigate,
+} from 'react-router-dom';
+
 import { useAuth } from '../../context/AuthContext';
 
 function LoginPage() {
@@ -27,27 +34,61 @@ function LoginPage() {
     password: '',
     rememberMe: false,
   });
+
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+
+  const {
+    login,
+    isAuthenticated,
+    user,
+  } = useAuth();
+
   const toast = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/dashboard';
+  const getDashboardPath = (user) => {
+    if (user?.role === 'donor') {
+      return '/donor-dashboard';
+    }
+
+    if (user?.role === 'recipient') {
+      return '/recipient-dashboard';
+    }
+
+    if (user?.role === 'admin') {
+      return '/admin-dashboard';
+    }
+
+    return '/';
+  };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    const {
+      name,
+      value,
+      type,
+      checked,
+    } = e.target;
+
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]:
+        type === 'checkbox'
+          ? checked
+          : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setIsLoading(true);
 
-    const result = await login(formData.email, formData.password, formData.rememberMe);
+    const result = await login(
+      formData.email,
+      formData.password,
+      formData.rememberMe
+    );
 
     if (result.success) {
       toast({
@@ -55,14 +96,24 @@ function LoginPage() {
         description: `Welcome back, ${result.user.name}!`,
         status: 'success',
         duration: 3000,
+        isClosable: true,
       });
-      navigate(from, { replace: true });
+
+      navigate(
+        getDashboardPath(result.user),
+        {
+          replace: true,
+        }
+      );
     } else {
       toast({
         title: 'Login Failed',
-        description: result.message || 'Invalid email or password',
+        description:
+          result.message ||
+          'Invalid email or password',
         status: 'error',
         duration: 5000,
+        isClosable: true,
       });
     }
 
@@ -70,15 +121,33 @@ function LoginPage() {
   };
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return (
+      <Navigate
+        to={getDashboardPath(user)}
+        replace
+      />
+    );
   }
 
   return (
     <Container maxW="md" py={12}>
       <VStack spacing={8}>
-        <VStack spacing={4} textAlign="center">
-          <Icon as={FiHeart} w={12} h={12} color="primary.500" />
-          <Heading size="lg">Welcome Back</Heading>
+
+        <VStack
+          spacing={4}
+          textAlign="center"
+        >
+          <Icon
+            as={FiHeart}
+            w={12}
+            h={12}
+            color="primary.500"
+          />
+
+          <Heading size="lg">
+            Welcome Back
+          </Heading>
+
           <Text color="gray.600">
             Sign in to your Hemo Connect account
           </Text>
@@ -88,8 +157,12 @@ function LoginPage() {
           <CardBody p={8}>
             <form onSubmit={handleSubmit}>
               <Stack spacing={6}>
+
                 <FormControl isRequired>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>
+                    Email
+                  </FormLabel>
+
                   <Input
                     name="email"
                     type="email"
@@ -100,7 +173,10 @@ function LoginPage() {
                 </FormControl>
 
                 <FormControl isRequired>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>
+                    Password
+                  </FormLabel>
+
                   <Input
                     name="password"
                     type="password"
@@ -111,15 +187,27 @@ function LoginPage() {
                 </FormControl>
 
                 <Stack spacing={6}>
-                  <Stack direction="row" align="start" justify="space-between">
+
+                  <Stack
+                    direction="row"
+                    align="start"
+                    justify="space-between"
+                  >
                     <Checkbox
                       name="rememberMe"
-                      checked={formData.rememberMe}
+                      checked={
+                        formData.rememberMe
+                      }
                       onChange={handleChange}
                     >
                       Remember me
                     </Checkbox>
-                    <Link as={RouterLink} to="/forgot-password" color="primary.500">
+
+                    <Link
+                      as={RouterLink}
+                      to="/forgot-password"
+                      color="primary.500"
+                    >
                       Forgot password?
                     </Link>
                   </Stack>
@@ -134,6 +222,7 @@ function LoginPage() {
                   >
                     Sign In
                   </Button>
+
                 </Stack>
               </Stack>
             </form>
@@ -142,10 +231,17 @@ function LoginPage() {
 
         <Text textAlign="center">
           Don't have an account?{' '}
-          <Link as={RouterLink} to="/signup" color="primary.500" fontWeight="medium">
+
+          <Link
+            as={RouterLink}
+            to="/signup"
+            color="primary.500"
+            fontWeight="medium"
+          >
             Sign up here
           </Link>
         </Text>
+
       </VStack>
     </Container>
   );

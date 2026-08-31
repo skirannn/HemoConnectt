@@ -6,6 +6,7 @@ function ProtectedRoute({ children, requiredRole = null }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
+  // Wait until the saved JWT/session has been checked.
   if (isLoading) {
     return (
       <Center minH="50vh">
@@ -14,19 +15,47 @@ function ProtectedRoute({ children, requiredRole = null }) {
     );
   }
 
+  // User is not logged in.
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return (
+      <Navigate
+        to="/login"
+        state={{ from: location }}
+        replace
+      />
+    );
   }
 
+  // Check role if this route requires a specific role.
   if (requiredRole && user?.role !== requiredRole) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Check if user needs to complete profile setup
-  if (user && !user.profileComplete && location.pathname !== '/profile-setup') {
-    return <Navigate to="/profile-setup" replace />;
+  /*
+   * Profile completion check.
+   *
+   * The Spring Boot backend returns:
+   *     profileCompleted
+   *
+   * normalizeUser() converts that to the frontend property:
+   *     profileComplete
+   *
+   * Therefore the frontend checks user.profileComplete here.
+   */
+  if (
+    user &&
+    user.profileComplete !== true &&
+    location.pathname !== '/profile-setup'
+  ) {
+    return (
+      <Navigate
+        to="/profile-setup"
+        replace
+      />
+    );
   }
 
+  // Everything is valid — allow access to the protected page.
   return <Box>{children}</Box>;
 }
 
