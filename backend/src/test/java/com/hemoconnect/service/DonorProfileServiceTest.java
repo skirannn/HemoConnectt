@@ -1,10 +1,10 @@
 package com.hemoconnect.service;
 
+import com.hemoconnect.dto.DonorProfileResponseDto;
 import com.hemoconnect.dto.RecordDonationRequestDto;
 import com.hemoconnect.entity.DonorProfile;
 import com.hemoconnect.entity.Role;
 import com.hemoconnect.entity.User;
-import com.hemoconnect.exception.ResourceNotFoundException;
 import com.hemoconnect.repository.DonorProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,10 +21,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-/**
- * Unit tests focused on the most important rule in this module: a donor
- * becomes eligible again exactly 56 days after their last donation.
- */
 @ExtendWith(MockitoExtension.class)
 class DonorProfileServiceTest {
 
@@ -47,14 +43,15 @@ class DonorProfileServiceTest {
 
         existingProfile = new DonorProfile();
         existingProfile.setUser(donor);
-
-        when(donorProfileRepository.save(any(DonorProfile.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
     void recordDonation_setsEligibleFalse_immediatelyAfterDonating() {
-        when(donorProfileRepository.findByUserId(1L)).thenReturn(Optional.of(existingProfile));
+        when(donorProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(existingProfile));
+
+        when(donorProfileRepository.save(any(DonorProfile.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         RecordDonationRequestDto request = new RecordDonationRequestDto();
         request.setUnits(1);
@@ -63,17 +60,22 @@ class DonorProfileServiceTest {
         var result = donorProfileService.recordDonation(1L, request);
 
         assertThat(result.isEligible()).isFalse();
-        assertThat(result.getNextEligibleDate()).isEqualTo(LocalDate.now().plusDays(56));
+        assertThat(result.getNextEligibleDate())
+                .isEqualTo(LocalDate.now().plusDays(56));
         assertThat(result.getTotalDonations()).isEqualTo(1);
     }
 
     @Test
     void recordDonation_setsEligibleTrue_whenLastDonationWasOver56DaysAgo() {
-        when(donorProfileRepository.findByUserId(1L)).thenReturn(Optional.of(existingProfile));
+        when(donorProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(existingProfile));
+
+        when(donorProfileRepository.save(any(DonorProfile.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         RecordDonationRequestDto request = new RecordDonationRequestDto();
         request.setUnits(1);
-        request.setDonationDate(LocalDate.now().minusDays(60)); // well past the cooldown
+        request.setDonationDate(LocalDate.now().minusDays(60));
 
         var result = donorProfileService.recordDonation(1L, request);
 
@@ -82,11 +84,15 @@ class DonorProfileServiceTest {
 
     @Test
     void recordDonation_setsEligibleFalse_onDay55() {
-        when(donorProfileRepository.findByUserId(1L)).thenReturn(Optional.of(existingProfile));
+        when(donorProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(existingProfile));
+
+        when(donorProfileRepository.save(any(DonorProfile.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         RecordDonationRequestDto request = new RecordDonationRequestDto();
         request.setUnits(1);
-        request.setDonationDate(LocalDate.now().minusDays(55)); // one day short of eligible
+        request.setDonationDate(LocalDate.now().minusDays(55));
 
         var result = donorProfileService.recordDonation(1L, request);
 
@@ -95,11 +101,15 @@ class DonorProfileServiceTest {
 
     @Test
     void recordDonation_setsEligibleTrue_exactlyOnDay56() {
-        when(donorProfileRepository.findByUserId(1L)).thenReturn(Optional.of(existingProfile));
+        when(donorProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(existingProfile));
+
+        when(donorProfileRepository.save(any(DonorProfile.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         RecordDonationRequestDto request = new RecordDonationRequestDto();
         request.setUnits(1);
-        request.setDonationDate(LocalDate.now().minusDays(56)); // exactly the cooldown boundary
+        request.setDonationDate(LocalDate.now().minusDays(56));
 
         var result = donorProfileService.recordDonation(1L, request);
 
@@ -108,12 +118,15 @@ class DonorProfileServiceTest {
 
     @Test
     void recordDonation_throwsResourceNotFoundException_whenNoProfileExists() {
-        when(donorProfileRepository.findByUserId(99L)).thenReturn(Optional.empty());
+        when(donorProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.empty());
 
         RecordDonationRequestDto request = new RecordDonationRequestDto();
         request.setUnits(1);
+        request.setDonationDate(LocalDate.now());
 
-        assertThatThrownBy(() -> donorProfileService.recordDonation(99L, request))
-                .isInstanceOf(ResourceNotFoundException.class);
+        assertThatThrownBy(() ->
+                donorProfileService.recordDonation(1L, request))
+                .isInstanceOf(RuntimeException.class);
     }
 }

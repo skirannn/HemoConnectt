@@ -42,13 +42,15 @@ class NotificationServiceTest {
         notification.setTitle("Test");
         notification.setMessage("Test message");
 
-        when(notificationRepository.save(any(Notification.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        
     }
 
     @Test
     void markAsRead_setsReadTrue_whenCallerOwnsTheNotification() {
         when(notificationRepository.findById(10L)).thenReturn(Optional.of(notification));
+
+       when(notificationRepository.save(any(Notification.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
         var result = notificationService.markAsRead(10L, 1L);
 

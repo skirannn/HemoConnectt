@@ -26,14 +26,19 @@ class BloodRequestServiceTest {
 
     @Mock
     private BloodRequestRepository bloodRequestRepository;
+
     @Mock
     private DonorResponseRepository donorResponseRepository;
+
     @Mock
     private UserService userService;
+
     @Mock
     private DonorProfileService donorProfileService;
+
     @Mock
     private DonorMatchingService donorMatchingService;
+
     @Mock
     private NotificationService notificationService;
 
@@ -57,17 +62,22 @@ class BloodRequestServiceTest {
         pendingRequest = new BloodRequest();
         pendingRequest.setRequester(requester);
         pendingRequest.setStatus(RequestStatus.PENDING);
-        pendingRequest.setExpiresAt(LocalDateTime.now().plusDays(30)); // not expired
-
-        when(bloodRequestRepository.save(any(BloodRequest.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        pendingRequest.setExpiresAt(LocalDateTime.now().plusDays(30));
     }
 
     @Test
     void respondToRequest_withAccept_flipsStatusFromPendingToMatched() {
-        when(bloodRequestRepository.findById(10L)).thenReturn(Optional.of(pendingRequest));
-        when(donorResponseRepository.existsByBloodRequestIdAndDonorId(10L, 2L)).thenReturn(false);
-        when(userService.getUserEntityById(2L)).thenReturn(donor);
+        when(bloodRequestRepository.findById(10L))
+                .thenReturn(Optional.of(pendingRequest));
+
+        when(donorResponseRepository.existsByBloodRequestIdAndDonorId(10L, 2L))
+                .thenReturn(false);
+
+        when(userService.getUserEntityById(2L))
+                .thenReturn(donor);
+
+        when(bloodRequestRepository.save(any(BloodRequest.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         RespondToRequestDto dto = new RespondToRequestDto();
         dto.setResponseType(ResponseType.ACCEPT);
@@ -80,9 +90,17 @@ class BloodRequestServiceTest {
 
     @Test
     void respondToRequest_withDecline_leavesStatusPending() {
-        when(bloodRequestRepository.findById(10L)).thenReturn(Optional.of(pendingRequest));
-        when(donorResponseRepository.existsByBloodRequestIdAndDonorId(10L, 2L)).thenReturn(false);
-        when(userService.getUserEntityById(2L)).thenReturn(donor);
+        when(bloodRequestRepository.findById(10L))
+                .thenReturn(Optional.of(pendingRequest));
+
+        when(donorResponseRepository.existsByBloodRequestIdAndDonorId(10L, 2L))
+                .thenReturn(false);
+
+        when(userService.getUserEntityById(2L))
+                .thenReturn(donor);
+
+        when(bloodRequestRepository.save(any(BloodRequest.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         RespondToRequestDto dto = new RespondToRequestDto();
         dto.setResponseType(ResponseType.DECLINE);
@@ -94,34 +112,48 @@ class BloodRequestServiceTest {
 
     @Test
     void respondToRequest_throwsIllegalArgumentException_whenDonorAlreadyResponded() {
-        when(bloodRequestRepository.findById(10L)).thenReturn(Optional.of(pendingRequest));
-        when(donorResponseRepository.existsByBloodRequestIdAndDonorId(10L, 2L)).thenReturn(true);
+        when(bloodRequestRepository.findById(10L))
+                .thenReturn(Optional.of(pendingRequest));
+
+        when(donorResponseRepository.existsByBloodRequestIdAndDonorId(10L, 2L))
+                .thenReturn(true);
 
         RespondToRequestDto dto = new RespondToRequestDto();
         dto.setResponseType(ResponseType.ACCEPT);
 
-        assertThatThrownBy(() -> bloodRequestService.respondToRequest(10L, 2L, dto))
+        assertThatThrownBy(() ->
+                bloodRequestService.respondToRequest(10L, 2L, dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("already responded");
     }
 
     @Test
     void cancelRequest_throwsAccessDeniedException_whenCallerIsNotRequesterOrAdmin() {
-        when(bloodRequestRepository.findById(10L)).thenReturn(Optional.of(pendingRequest));
+        when(bloodRequestRepository.findById(10L))
+                .thenReturn(Optional.of(pendingRequest));
 
         User stranger = new User();
         stranger.setId(99L);
         stranger.setRole(Role.DONOR);
-        when(userService.getUserEntityById(99L)).thenReturn(stranger);
 
-        assertThatThrownBy(() -> bloodRequestService.cancelRequest(10L, 99L))
+        when(userService.getUserEntityById(99L))
+                .thenReturn(stranger);
+
+        assertThatThrownBy(() ->
+                bloodRequestService.cancelRequest(10L, 99L))
                 .isInstanceOf(AccessDeniedException.class);
     }
 
     @Test
     void cancelRequest_succeeds_whenCallerIsTheRequester() {
-        when(bloodRequestRepository.findById(10L)).thenReturn(Optional.of(pendingRequest));
-        when(userService.getUserEntityById(1L)).thenReturn(requester);
+        when(bloodRequestRepository.findById(10L))
+                .thenReturn(Optional.of(pendingRequest));
+
+        when(userService.getUserEntityById(1L))
+                .thenReturn(requester);
+
+        when(bloodRequestRepository.save(any(BloodRequest.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         var result = bloodRequestService.cancelRequest(10L, 1L);
 
@@ -130,8 +162,10 @@ class BloodRequestServiceTest {
 
     @Test
     void getRequestById_flipsToExpired_whenPastThe30DayWindow() {
-        pendingRequest.setExpiresAt(LocalDateTime.now().minusDays(1)); // already past expiry
-        when(bloodRequestRepository.findById(10L)).thenReturn(Optional.of(pendingRequest));
+        pendingRequest.setExpiresAt(LocalDateTime.now().minusDays(1));
+
+        when(bloodRequestRepository.findById(10L))
+                .thenReturn(Optional.of(pendingRequest));
 
         var result = bloodRequestService.getRequestById(10L);
 

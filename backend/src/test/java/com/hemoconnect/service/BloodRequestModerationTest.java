@@ -53,13 +53,14 @@ class BloodRequestModerationTest {
         request.setStatus(RequestStatus.PENDING);
         request.setExpiresAt(LocalDateTime.now().plusDays(30));
 
-        when(bloodRequestRepository.save(any(BloodRequest.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        
     }
 
     @Test
     void flagRequest_setsFlaggedTrueWithReason() {
         when(bloodRequestRepository.findById(1L)).thenReturn(Optional.of(request));
+       when(bloodRequestRepository.save(any(BloodRequest.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         var result = bloodRequestService.flagRequest(1L, "Suspicious details");
 
@@ -71,7 +72,10 @@ class BloodRequestModerationTest {
     void approveFlaggedRequest_clearsFlagButKeepsStatus() {
         request.setFlagged(true);
         request.setFlagReason("Suspicious details");
+
         when(bloodRequestRepository.findById(1L)).thenReturn(Optional.of(request));
+        when(bloodRequestRepository.save(any(BloodRequest.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
         var result = bloodRequestService.approveFlaggedRequest(1L);
 
@@ -85,6 +89,9 @@ class BloodRequestModerationTest {
         request.setFlagged(true);
         request.setFlagReason("Suspicious details");
         when(bloodRequestRepository.findById(1L)).thenReturn(Optional.of(request));
+      
+       when(bloodRequestRepository.save(any(BloodRequest.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
         var result = bloodRequestService.rejectFlaggedRequest(1L, "Confirmed fraudulent");
 
